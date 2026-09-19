@@ -3,7 +3,7 @@
 A lightweight, web-based canvas editor — create shapes, text, and freehand drawings, save them to the cloud, and come back to keep editing. Built as a focused tool rather than a full design suite: no accounts, no clutter, just open a link and start drawing.
 
 **Live demo:** [canvas2d-5a2dd.web.app](https://canvas2d-5a2dd.web.app)
-**Video walkthrough:** _placeholder — link here_
+**Video walkthrough:** [_placeholder — link here_](https://www.loom.com/share/71dfaa9e66d2410cb4f8133b00e6fa37)
 **Repo:** [github.com/HARSHA-8855/2dcanvas](https://github.com/HARSHA-8855/2dcanvas)
 
 ## Tech stack
