@@ -42,12 +42,14 @@ export function CanvasEditor() {
 
     fabricCanvas.on('object:added', checkObjects);
     fabricCanvas.on('object:removed', checkObjects);
+    fabricCanvas.on('canvas:cleared', checkObjects);
 
     checkObjects();
 
     return () => {
       fabricCanvas.off('object:added', checkObjects);
       fabricCanvas.off('object:removed', checkObjects);
+      fabricCanvas.off('canvas:cleared', checkObjects);
     };
   }, [fabricCanvas]);
 
@@ -115,6 +117,18 @@ export function CanvasEditor() {
     } catch (e) {
       console.warn('Pre-navigation save warning:', e);
     }
+
+    if (fabricCanvas) {
+      fabricCanvas.discardActiveObject();
+      fabricCanvas.clear();
+      fabricCanvas.backgroundColor = 'transparent';
+      fabricCanvas.renderAll();
+    }
+
+    setHasObjects(false);
+    setIsEditingTitle(false);
+    setTitleInput('Untitled');
+
     const newDocRef = doc(collection(db, 'canvases'));
     const newId = newDocRef.id;
     const nowStr = new Date().toISOString();

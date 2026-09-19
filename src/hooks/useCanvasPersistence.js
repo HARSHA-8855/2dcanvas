@@ -99,6 +99,14 @@ export function useCanvasPersistence(fabricCanvas, canvasId, containerRef) {
         let loadedData = null;
         let loadedName = 'Untitled';
 
+        // Discard any active selections and clear previous canvas content immediately
+        if (fabricCanvas) {
+          fabricCanvas.discardActiveObject();
+          fabricCanvas.clear();
+          fabricCanvas.backgroundColor = 'transparent';
+          fabricCanvas.renderAll();
+        }
+
         const localData = localStorage.getItem(`canvas_${canvasId}`);
         if (localData) {
           try {
@@ -136,17 +144,23 @@ export function useCanvasPersistence(fabricCanvas, canvasId, containerRef) {
 
         if (isMounted) {
           setCanvasName(loadedName);
+          setSaveStatus('saved');
+          setErrorMessage('');
           saveRecentCanvas({
             id: canvasId,
             name: loadedName,
             updatedAt: new Date().toISOString(),
           });
-        }
 
-        if (isMounted && loadedData) {
-          const res = fabricCanvas.loadFromJSON(loadedData);
-          if (res && typeof res.then === 'function') {
-            await res;
+          if (loadedData) {
+            const res = fabricCanvas.loadFromJSON(loadedData);
+            if (res && typeof res.then === 'function') {
+              await res;
+            }
+          } else {
+            // New canvas or blank document: ensure completely clean canvas state
+            fabricCanvas.clear();
+            fabricCanvas.backgroundColor = 'transparent';
           }
 
           if (containerRef?.current) {

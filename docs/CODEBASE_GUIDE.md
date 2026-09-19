@@ -30,7 +30,7 @@ Quick-reference guide to the architecture, state flows, and non-obvious implemen
   - **Scene vs. Screen Coordinates:** Calculates cursor position using Fabric v6's `fabricCanvas.getScenePoint(e)` (fallback to `getPointer(e)`) to ensure coordinates reflect true canvas space regardless of CSS zoom or pan offsets.
   - **Ruler Pointer Tracking:** Listens to both canvas `mouse:out` and artboard container `mouseleave` to clear `coords` to `null`, preventing frozen crosshair markers on the rulers when the cursor leaves the workspace.
   - **Centered Zoom:** Zooms around `fabricCanvas.getCenterPoint()` rather than `(0, 0)` so scaling remains intuitive relative to the visible viewport.
-  - **Pre-navigation Flush:** When user triggers "New Canvas", `handleCreateNewCanvas` awaits `save()` to flush unpersisted edits before switching routes.
+  - **Pre-navigation Flush & Canvas Reset:** When user triggers "New Canvas", `handleCreateNewCanvas` awaits `save()` to flush edits, clears `fabricCanvas` immediately, and resets `hasObjects` and title input before navigating to ensure the new document starts completely blank.
 
 ---
 
@@ -117,6 +117,7 @@ Quick-reference guide to the architecture, state flows, and non-obvious implemen
   - **Load Protection via `isLoadingRef`:** When loading canvas data from JSON via `fabricCanvas.loadFromJSON()`, `isLoadingRef.current` is set to `true` to block the auto-save event listeners from treating initial object additions as user edits (preventing overwriting saved data with blank states).
   - **Debounced Save (500ms):** Listens to `object:added`, `object:modified`, and `object:removed` and debounces writes via `timerRef` to avoid excessive disk/network traffic while dragging or drawing.
   - **Dimension Stripping:** Strips root `width` and `height` from `canvas.toJSON()` before storage so stored canvas dimensions don't override the client container's dynamic responsive dimensions on load.
+  - **Canvas Isolation on Route Changes:** When switching or creating canvases, `loadCanvasData` immediately clears the existing in-memory canvas. If `loadedData` is empty/null (a brand new canvas), it guarantees `fabricCanvas.clear()` is executed rather than retaining the previous canvas's in-memory objects, preventing cross-canvas duplicate persistence.
 
 ### `src/hooks/useCustomShapeTool.js`
 - **Responsibility:** Implements multi-point polygon creation with temporary vertex markers, connecting line segments, and real-time dashed rubber-band preview with magnetic start-point snapping.
