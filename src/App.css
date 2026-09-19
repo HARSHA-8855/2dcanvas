@@ -648,6 +648,111 @@ body {
 }
 
 /* ==================================================
+   CONTEXTUAL PROPERTIES BAR (Bold, Italic, Size, Color)
+   ================================================== */
+.properties-panel {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  gap: 10px;
+  z-index: 45;
+  user-select: none;
+  animation: propFadeIn 0.12s ease;
+}
+
+@keyframes propFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.property-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.property-group + .property-group {
+  padding-left: 10px;
+  border-left: 1px solid var(--border-color);
+}
+
+.property-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.prop-button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.prop-button:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.prop-button.active {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-weight: 700;
+}
+
+.property-group .number-input {
+  width: 58px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: #ffffff;
+  outline: none;
+}
+
+.property-group .number-input:focus {
+  border-color: var(--primary-color);
+}
+
+.property-group .color-input {
+  width: 28px;
+  height: 28px;
+  padding: 1px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+/* ==================================================
    CANVAS ARTBOARD & RULERS
    ================================================== */
 .canvas-area-wrapper {

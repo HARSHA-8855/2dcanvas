@@ -6,6 +6,7 @@ import { useFabricCanvas } from './hooks/useFabricCanvas';
 import { useCanvasPersistence } from './hooks/useCanvasPersistence';
 import { saveRecentCanvas } from './lib/recentCanvases';
 import { Toolbar } from './components/Toolbar';
+import { PropertiesPanel } from './components/PropertiesPanel';
 import { SaveStatus } from './components/SaveStatus';
 import { RecentCanvasesDropdown } from './components/RecentCanvasesDropdown';
 import { CanvasRulers } from './components/CanvasRulers';
@@ -218,6 +219,7 @@ export function CanvasEditor() {
       {/* Main Canvas Artboard & Floating Controls */}
       <div className="canvas-area-wrapper">
         <Toolbar fabricCanvas={fabricCanvas} />
+        <PropertiesPanel fabricCanvas={fabricCanvas} />
         <CanvasRulers containerRef={containerRef} coords={coords} />
 
         <div className="artboard-container" ref={containerRef}>
