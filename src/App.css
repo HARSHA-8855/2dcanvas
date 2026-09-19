@@ -628,6 +628,11 @@ body {
   color: var(--destructive);
 }
 
+.floating-tool-btn.save-tool-btn.saved {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
 /* Tooltip System */
 .floating-tool-btn[data-tooltip]:hover::after {
   content: attr(data-tooltip);

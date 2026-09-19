@@ -218,7 +218,7 @@ export function CanvasEditor() {
 
       {/* Main Canvas Artboard & Floating Controls */}
       <div className="canvas-area-wrapper">
-        <Toolbar fabricCanvas={fabricCanvas} />
+        <Toolbar fabricCanvas={fabricCanvas} onSave={save} />
         <PropertiesPanel fabricCanvas={fabricCanvas} />
         <CanvasRulers containerRef={containerRef} coords={coords} />
 

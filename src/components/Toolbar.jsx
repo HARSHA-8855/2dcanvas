@@ -11,12 +11,27 @@ import {
   TypeIcon,
   PencilIcon,
   TrashIcon,
+  SaveIcon,
+  CheckIcon,
 } from './Icons';
 
-export function Toolbar({ fabricCanvas }) {
+export function Toolbar({ fabricCanvas, onSave }) {
   const [activeTool, setActiveTool] = useState('select');
   const [color, setColor] = useState('#4F46E5');
+  const [savedFeedback, setSavedFeedback] = useState(false);
   const colorInputRef = useRef(null);
+
+  const handleSaveClick = useCallback(async () => {
+    if (onSave) {
+      try {
+        await onSave();
+        setSavedFeedback(true);
+        setTimeout(() => setSavedFeedback(false), 1500);
+      } catch (e) {
+        console.warn('Save failed:', e);
+      }
+    }
+  }, [onSave]);
 
   const handleCustomShapeComplete = useCallback(() => {
     setActiveTool('select');
@@ -208,6 +223,9 @@ export function Toolbar({ fabricCanvas }) {
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
         deleteActiveObject();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        handleSaveClick();
       } else if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
         e.preventDefault();
         duplicateActiveObject();
@@ -228,10 +246,22 @@ export function Toolbar({ fabricCanvas }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [fabricCanvas, setTool, deleteActiveObject, duplicateActiveObject]);
+  }, [fabricCanvas, setTool, deleteActiveObject, duplicateActiveObject, handleSaveClick]);
 
   return (
     <nav className="floating-toolbar" aria-label="Drawing tools">
+      {/* Save */}
+      <button
+        className={`floating-tool-btn save-tool-btn ${savedFeedback ? 'saved' : ''}`}
+        onClick={handleSaveClick}
+        data-tooltip={savedFeedback ? 'Saved!' : 'Save (Ctrl+S)'}
+        aria-label="Save canvas"
+      >
+        {savedFeedback ? <CheckIcon size={16} /> : <SaveIcon size={18} />}
+      </button>
+
+      <div className="toolbar-separator" />
+
       {/* Selection */}
       <button
         className={`floating-tool-btn ${activeTool === 'select' ? 'active' : ''}`}
