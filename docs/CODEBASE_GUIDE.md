@@ -37,12 +37,13 @@ Quick-reference guide to the architecture, state flows, and non-obvious implemen
 ## 2. Components (`src/components/`)
 
 ### `src/components/Toolbar.jsx`
-- **Responsibility:** Renders the floating drawing tool palette and manages tool switching, primitive shape creation, color updates, and keyboard shortcuts.
+- **Responsibility:** Renders the floating drawing tool palette and manages tool switching, primitive shape creation, color updates, manual canvas saving, and keyboard shortcuts.
 - **Key Props / State:**
-  - Props: `fabricCanvas` (Fabric canvas instance).
-  - State: `activeTool` (`'select' | 'custom' | 'pen'`), `color` (active fill/stroke hex).
+  - Props: `fabricCanvas` (Fabric canvas instance), `onSave` (manual save trigger function).
+  - State: `activeTool` (`'select' | 'custom' | 'pen'`), `color` (active fill/stroke hex), `savedFeedback` (boolean flag for transient checkmark).
 - **Non-Obvious Logic:**
-  - **Input Shielding on Hotkeys:** The global `keydown` listener explicitly verifies `document.activeElement` is not an `<input>`, `<textarea>`, or contentEditable element, and ensures `activeObj.isEditing` is false before executing hotkeys (`V`, `R`, `C`, `T`, `P`, `Del`, `Ctrl+D`) to prevent typing conflicts.
+  - **Save Action & Hotkey:** Houses the primary Save button placed directly above the Selection tool, with transient checkmark feedback on click and global `Ctrl+S` / `Cmd+S` interception to trigger instant cloud/local persistence.
+  - **Input Shielding on Hotkeys:** The global `keydown` listener explicitly verifies `document.activeElement` is not an `<input>`, `<textarea>`, or contentEditable element, and ensures `activeObj.isEditing` is false before executing hotkeys (`V`, `R`, `C`, `T`, `P`, `Del`, `Ctrl+D`, `Ctrl+S`) to prevent typing conflicts.
   - **PencilBrush Binding:** Fabric freehand drawing requires both `canvas.isDrawingMode = true` and `canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)`. If the brush instance is missing, freehand input will not register.
   - **ActiveSelection Duplication:** To clone a multi-selection (`activeSelection`), the clone must re-parent objects to the canvas individually and invoke `setCoordinates()` so selection bounding boxes don't desynchronize.
 
@@ -118,15 +119,17 @@ Quick-reference guide to the architecture, state flows, and non-obvious implemen
   - **Dimension Stripping:** Strips root `width` and `height` from `canvas.toJSON()` before storage so stored canvas dimensions don't override the client container's dynamic responsive dimensions on load.
 
 ### `src/hooks/useCustomShapeTool.js`
-- **Responsibility:** Implements multi-point polygon creation with temporary vertex markers, connecting line segments, and real-time dashed rubber-band preview.
+- **Responsibility:** Implements multi-point polygon creation with temporary vertex markers, connecting line segments, and real-time dashed rubber-band preview with magnetic start-point snapping.
 - **Key Props / State / Returns:**
-  - Parameters: `fabricCanvas`, `isActive`, `onComplete`, `color`.
-  - Returns: None (manages canvas state via refs).
+- Parameters: `fabricCanvas`, `isActive`, `onComplete`, `color`.
+- Returns: None (manages canvas state via refs).
 - **Non-Obvious Logic:**
-  - **Temporary Overlay Objects:** Stores vertex circles and connecting line segments in `tempObjectsRef` with `selectable: false` and `evented: false` so they don't interfere with mouse click detection.
-  - **Rubber-Band Line Reuse:** Reuses a single `rubberBandRef` dashed line instance and updates its `(x2, y2)` endpoint on `mouse:move` rather than creating and destroying lines on every frame.
-  - **Polygon Finalization:** Completes the polygon on right-click (`evt.button === 2` / `contextmenu` event) or `Escape` key. If points >= 3, instantiates a single `fabric.Polygon`, purges all temporary nodes from the canvas, restores cursor and selection mode, and fires `onComplete`.
-  - **Cleanup Guarantee:** Any deactivation or unmount triggers `cleanupTempObjects()` to ensure no orphaned markers or dashed lines remain on the canvas.
+- **Magnetic Snapping & Zero Residue:** Enforces a 16px magnetic radius (`SNAP_RADIUS = 16`). When cursor moves within 16px of the starting vertex after placing >= 3 points, the rubber band endpoint snaps directly to the start coordinates and the start anchor turns green with a pointer cursor. Clicking within this radius invokes `finishPolygon()` immediately without appending an offset point, eliminating unwanted corner residue.
+- **Micro-Click Filtering:** Ignores duplicate clicks within 4px of the last placed point to prevent accidental zero-length line artifacts.
+- **Temporary Overlay Objects:** Stores vertex circles and connecting line segments in `tempObjectsRef` with `selectable: false` and `evented: false` so they don't interfere with canvas event dispatching.
+- **Rubber-Band Line Reuse:** Reuses a single `rubberBandRef` dashed line instance and updates its `(x2, y2)` endpoint on `mouse:move` rather than creating and destroying lines on every frame.
+- **Polygon Finalization:** Completes the polygon on start-point click, right-click (`evt.button === 2` / `contextmenu`), or `Enter` / `Escape` key. If points >= 3, instantiates a single `fabric.Polygon`, purges all temporary nodes from the canvas, restores cursor and selection mode, and fires `onComplete`.
+- **Cleanup Guarantee:** Any deactivation or unmount triggers `cleanupTempObjects()` to ensure no orphaned markers or dashed lines remain on the canvas.
 
 ---
 
