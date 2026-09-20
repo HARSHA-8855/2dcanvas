@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './lib/firebase';
-import { getRecentCanvases, saveRecentCanvas } from './lib/recentCanvases';
+import { getRecentCanvases, saveRecentCanvas, deleteRecentCanvas } from './lib/recentCanvases';
+import { TrashIcon } from './components/Icons';
 
 export function Home() {
   const navigate = useNavigate();
@@ -38,6 +39,17 @@ export function Home() {
 
   const handleOpenCanvas = (id) => {
     navigate(`/canvas/${id}`);
+  };
+
+  const handleDeleteCard = async (e, id) => {
+    e.stopPropagation();
+    deleteRecentCanvas(id);
+    setRecentList((prev) => prev.filter((item) => item.id !== id));
+    try {
+      await deleteDoc(doc(db, 'canvases', id));
+    } catch (err) {
+      console.warn('Failed to delete canvas doc from firestore:', err);
+    }
   };
 
   const handleShareCard = async (e, id) => {
@@ -79,6 +91,16 @@ export function Home() {
                 }}
               >
                 <div className="tile-canvas-preview">
+                  <button
+                    type="button"
+                    className="tile-delete-btn"
+                    onClick={(e) => handleDeleteCard(e, item.id)}
+                    title="Delete canvas"
+                    aria-label="Delete canvas"
+                  >
+                    <TrashIcon size={16} />
+                  </button>
+
                   <svg
                     className="tile-preview-art"
                     viewBox="0 0 80 80"

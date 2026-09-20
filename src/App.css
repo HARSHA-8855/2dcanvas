@@ -139,6 +139,37 @@ body {
   opacity: 1;
 }
 
+.tile-delete-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 160ms ease, color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 2;
+}
+
+.canvas-document-tile:hover .tile-delete-btn,
+.canvas-document-tile:focus-within .tile-delete-btn {
+  opacity: 1;
+}
+
+.tile-delete-btn:hover {
+  color: var(--destructive);
+  border-color: #fca5a5;
+  background: var(--destructive-bg);
+}
+
 .tile-share-btn {
   position: absolute;
   top: 10px;
@@ -156,9 +187,11 @@ body {
   opacity: 0;
   transition: opacity 160ms ease, color 160ms ease, border-color 160ms ease, background-color 160ms ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 2;
 }
 
-.canvas-document-tile:hover .tile-share-btn {
+.canvas-document-tile:hover .tile-share-btn,
+.canvas-document-tile:focus-within .tile-share-btn {
   opacity: 1;
 }
 

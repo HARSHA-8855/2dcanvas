@@ -35,3 +35,15 @@ export function saveRecentCanvas({ id, name = 'Untitled', updatedAt }) {
     console.warn('Failed to save recent canvases:', e);
   }
 }
+
+export function deleteRecentCanvas(id) {
+  if (!id) return;
+  const current = getRecentCanvases();
+  const updatedList = current.filter((item) => item.id !== id);
+  try {
+    localStorage.setItem('recent_canvases', JSON.stringify(updatedList));
+  } catch (e) {
+    console.warn('Failed to delete recent canvas:', e);
+  }
+}
+
